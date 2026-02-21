@@ -13,11 +13,16 @@ type RespShallowLocations struct {
 	Results  []NamedAPIResource `json:"results"`
 }
 
-type RespLocation struct {
+type Location struct {
 	Name              string             `json:"name"`
 	PokemonEncounters []PokemonEncounter `json:"pokemon_encounters"`
 }
 
 type PokemonEncounter struct {
 	Pokemon NamedAPIResource `json:"pokemon"`
+}
+
+type Pokemon struct {
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
 }

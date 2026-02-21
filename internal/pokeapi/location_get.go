@@ -6,40 +6,41 @@ import (
 	"net/http"
 )
 
-func (c *Client) GetLocation(area string) (RespLocation, error) {
-	url := baseURL + "/location-area/" + area
+func (c *Client) GetLocation(locationName string) (Location, error) {
+	url := baseURL + "/location-area/" + locationName
 
-	// Check the cache
-	dat, ok := c.cache.Get(url)
-	if ok {
-		resp := RespLocation{}
-		err := json.Unmarshal(dat, &resp)
-		return resp, err
+	if val, ok := c.cache.Get(url); ok {
+		locationResp := Location{}
+		err := json.Unmarshal(val, &locationResp)
+		if err != nil {
+			return Location{}, err
+		}
+		return locationResp, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return RespLocation{}, err
+		return Location{}, err
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return RespLocation{}, err
+		return Location{}, err
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return RespLocation{}, err
+		return Location{}, err
 	}
 
-	c.cache.Add(url, body)
-
-	locationResp := RespLocation{}
-	err = json.Unmarshal(body, &locationResp)
+	locationResp := Location{}
+	err = json.Unmarshal(dat, &locationResp)
 	if err != nil {
-		return RespLocation{}, err
+		return Location{}, err
 	}
+
+	c.cache.Add(url, dat)
 
 	return locationResp, nil
 }
